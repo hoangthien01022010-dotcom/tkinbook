@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { base44 } from '@/lib/base44';
+import { base44 } from '@/api/base44Client';
 
 export default function SocialFeed() {
   const [profile, setProfile] = useState(null);
