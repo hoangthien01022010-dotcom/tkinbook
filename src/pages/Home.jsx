@@ -11,7 +11,7 @@ import NewChatModal from '@/components/chat/NewChatModal';
 import NewGroupModal from '@/components/chat/NewGroupModal';
 import ConversationInfo from '@/components/chat/ConversationInfo';
 import Avatar from '@/components/chat/Avatar';
-import { MessageCircle, Users, Bell, Settings, Bot } from 'lucide-react';
+import { MessageCircle, Users, Bell, Settings, Bot, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
@@ -24,7 +24,7 @@ export default function Home() {
   const [showConvInfo, setShowConvInfo] = useState(false);
   const [profiles, setProfiles] = useState({});
   const [unreadNotifs, setUnreadNotifs] = useState(0);
-  const [mobileView, setMobileView] = useState('list'); // list | chat
+  const [mobileView, setMobileView] = useState('list');
 
   useEffect(() => {
     if (!user) return;
@@ -93,8 +93,8 @@ export default function Home() {
           <h2 className="text-xl font-bold dark:text-white mb-2">Tài khoản bị khóa</h2>
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
             {profile.ban_type === 'permanent'
-              ? 'Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm quy tắc cộng đồng.'
-              : `Tài khoản bị khóa tạm thời đến ${profile.ban_until ? new Date(profile.ban_until).toLocaleDateString('vi-VN') : 'khi có thông báo mới'}.`}
+             ? 'Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm quy tắc cộng đồng.'
+              : `Tài khoản bị khóa tạm thời đến ${profile.ban_until? new Date(profile.ban_until).toLocaleDateString('vi-VN') : 'khi có thông báo mới'}.`}
           </p>
           <button onClick={() => base44.auth.logout('/login')} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg text-sm">
             Đăng xuất
@@ -110,6 +110,7 @@ export default function Home() {
     { key: 'bot', icon: Bot, label: 'AI Bot' },
     { key: 'notifications', icon: Bell, label: 'Thông báo', badge: unreadNotifs },
     { key: 'profile', icon: Settings, label: 'Cài đặt' },
+   ...(profile?.is_admin? [{ key: 'admin', icon: Shield, label: 'Quản trị' }] : []),
   ];
 
   const renderSidebar = () => {
@@ -139,13 +140,10 @@ export default function Home() {
   return (
     <div className="fixed inset-0 flex flex-col bg-white dark:bg-gray-900">
       <div className="flex flex-1 overflow-hidden">
-        {/* Desktop: sidebar always visible */}
-        {/* Mobile: show list or chat */}
-        <div className={`w-full md:w-[360px] md:border-r dark:border-gray-700 flex flex-col ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`w-full md:w-[360px] md:border-r dark:border-gray-700 flex flex-col ${mobileView === 'chat'? 'hidden md:flex' : 'flex'}`}>
           <div className="flex-1 overflow-hidden">
             {renderSidebar()}
           </div>
-          {/* Bottom nav */}
           <div className="flex items-center justify-around border-t dark:border-gray-700 bg-white dark:bg-gray-900 py-1 px-2">
             {navItems.map(item => {
               const Icon = item.icon;
@@ -154,18 +152,19 @@ export default function Home() {
                 <button
                   key={item.key}
                   onClick={() => {
+                    if (item.key === 'admin') { navigate('/admin'); return; }
                     setActiveTab(item.key);
-                    if (item.key !== 'chats') setMobileView('list');
+                    if (item.key!== 'chats') setMobileView('list');
                   }}
                   className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
-                    isActive ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                    isActive? 'text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
                   }`}
                 >
                   <Icon size={20} />
                   <span className="text-[10px] font-medium">{item.label}</span>
                   {item.badge > 0 && (
                     <span className="absolute -top-0.5 right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center">
-                      {item.badge > 9 ? '9+' : item.badge}
+                      {item.badge > 9? '9+' : item.badge}
                     </span>
                   )}
                 </button>
@@ -174,9 +173,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Chat area */}
-        <div className={`flex-1 ${mobileView === 'list' ? 'hidden md:flex' : 'flex'} flex-col`}>
-          {selectedConv ? (
+        <div className={`flex-1 ${mobileView === 'list'? 'hidden md:flex' : 'flex'} flex-col`}>
+          {selectedConv? (
             <ChatWindow
               conversation={selectedConv}
               currentUserId={user.id}
@@ -200,7 +198,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Modals */}
       {showNewChat && (
         <NewChatModal
           currentUserId={user.id}
