@@ -84,5 +84,3 @@ export default function SocialFeed() {
       ))}
       {posts.length === 0 && <p style={{opacity:0.6}}>Chưa có bài nào, đăng bài đầu tiên đi!</p>}
     </div>
-  );
-}
