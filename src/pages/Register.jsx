@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,11 +45,12 @@ export default function Register() {
 
   const handleGoogle = async () => {
     try {
-      const { error: err } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
-      if (err) throw err;
+      if (result?.error) throw result.error;
+      if (result?.redirected) return;
+      navigate("/", { replace: true });
     } catch (err) {
       setError(err?.message || "Không thể đăng ký với Google");
     }
