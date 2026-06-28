@@ -11,7 +11,8 @@ import NewChatModal from '@/components/chat/NewChatModal';
 import NewGroupModal from '@/components/chat/NewGroupModal';
 import ConversationInfo from '@/components/chat/ConversationInfo';
 import Avatar from '@/components/chat/Avatar';
-import { MessageCircle, Users, Bell, Settings, Bot, Shield } from 'lucide-react';
+import SocialFeed from '@/components/social/SocialFeed';
+import { MessageCircle, Users, Bell, Settings, Bot, Shield, Newspaper } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
@@ -93,7 +94,7 @@ export default function Home() {
           <h2 className="text-xl font-bold dark:text-white mb-2">Tài khoản bị khóa</h2>
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
             {profile.ban_type === 'permanent'
-             ? 'Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm quy tắc cộng đồng.'
+            ? 'Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm quy tắc cộng đồng.'
               : `Tài khoản bị khóa tạm thời đến ${profile.ban_until? new Date(profile.ban_until).toLocaleDateString('vi-VN') : 'khi có thông báo mới'}.`}
           </p>
           <button onClick={() => base44.auth.logout('/login')} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg text-sm">
@@ -106,15 +107,18 @@ export default function Home() {
 
   const navItems = [
     { key: 'chats', icon: MessageCircle, label: 'Chat' },
+    { key: 'feed', icon: Newspaper, label: 'Bảng tin' },
     { key: 'friends', icon: Users, label: 'Bạn bè' },
     { key: 'bot', icon: Bot, label: 'AI Bot' },
     { key: 'notifications', icon: Bell, label: 'Thông báo', badge: unreadNotifs },
     { key: 'profile', icon: Settings, label: 'Cài đặt' },
-   ...(profile?.is_admin? [{ key: 'admin', icon: Shield, label: 'Quản trị' }] : []),
+  ...(profile?.is_admin? [{ key: 'admin', icon: Shield, label: 'Quản trị' }] : []),
   ];
 
   const renderSidebar = () => {
     switch (activeTab) {
+      case 'feed':
+        return <SocialFeed />;
       case 'friends':
         return <FriendsPanel currentUserId={user.id} profile={profile} onClose={() => { setActiveTab('chats'); setMobileView('list'); }} onStartChat={startChatWith} />;
       case 'bot':
