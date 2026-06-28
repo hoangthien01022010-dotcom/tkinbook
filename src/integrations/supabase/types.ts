@@ -14,13 +14,374 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_settings: {
+        Row: {
+          analysis_depth: number
+          created_date: string
+          daily_message_limit: number
+          deep_enabled: boolean
+          direct_enabled: boolean
+          fast_enabled: boolean
+          fast_max_words: number
+          id: string
+          total_usage: number
+        }
+        Insert: {
+          analysis_depth?: number
+          created_date?: string
+          daily_message_limit?: number
+          deep_enabled?: boolean
+          direct_enabled?: boolean
+          fast_enabled?: boolean
+          fast_max_words?: number
+          id?: string
+          total_usage?: number
+        }
+        Update: {
+          analysis_depth?: number
+          created_date?: string
+          daily_message_limit?: number
+          deep_enabled?: boolean
+          direct_enabled?: boolean
+          fast_enabled?: boolean
+          fast_max_words?: number
+          id?: string
+          total_usage?: number
+        }
+        Relationships: []
+      }
+      call_rooms: {
+        Row: {
+          call_type: string
+          created_date: string
+          host_id: string
+          host_name: string | null
+          id: string
+          name: string | null
+          participant_cameras: Json
+          participant_ids: string[]
+          participant_mics: Json
+          participant_names: string[]
+          room_code: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          call_type?: string
+          created_date?: string
+          host_id: string
+          host_name?: string | null
+          id?: string
+          name?: string | null
+          participant_cameras?: Json
+          participant_ids?: string[]
+          participant_mics?: Json
+          participant_names?: string[]
+          room_code: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          call_type?: string
+          created_date?: string
+          host_id?: string
+          host_name?: string | null
+          id?: string
+          name?: string | null
+          participant_cameras?: Json
+          participant_ids?: string[]
+          participant_mics?: Json
+          participant_names?: string[]
+          room_code?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          admin_id: string | null
+          avatar_url: string | null
+          created_date: string
+          id: string
+          last_message: string | null
+          last_message_sender: string | null
+          last_message_time: string | null
+          name: string | null
+          participant_ids: string[]
+          participant_names: string[]
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          admin_id?: string | null
+          avatar_url?: string | null
+          created_date?: string
+          id?: string
+          last_message?: string | null
+          last_message_sender?: string | null
+          last_message_time?: string | null
+          name?: string | null
+          participant_ids?: string[]
+          participant_names?: string[]
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string | null
+          avatar_url?: string | null
+          created_date?: string
+          id?: string
+          last_message?: string | null
+          last_message_sender?: string | null
+          last_message_time?: string | null
+          name?: string | null
+          participant_ids?: string[]
+          participant_names?: string[]
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          created_date: string
+          id: string
+          receiver_id: string
+          requester_id: string
+          status: string
+        }
+        Insert: {
+          created_date?: string
+          id?: string
+          receiver_id: string
+          requester_id: string
+          status?: string
+        }
+        Update: {
+          created_date?: string
+          id?: string
+          receiver_id?: string
+          requester_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_date: string
+          deleted_by: string[]
+          file_name: string | null
+          file_url: string | null
+          id: string
+          is_ai: boolean
+          is_recalled: boolean
+          read_by: string[]
+          recalled_at: string | null
+          sender_avatar: string | null
+          sender_id: string | null
+          sender_name: string | null
+          type: string
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_date?: string
+          deleted_by?: string[]
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          is_ai?: boolean
+          is_recalled?: boolean
+          read_by?: string[]
+          recalled_at?: string | null
+          sender_avatar?: string | null
+          sender_id?: string | null
+          sender_name?: string | null
+          type?: string
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_date?: string
+          deleted_by?: string[]
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          is_ai?: boolean
+          is_recalled?: boolean
+          read_by?: string[]
+          recalled_at?: string | null
+          sender_avatar?: string | null
+          sender_id?: string | null
+          sender_name?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_date: string
+          from_user_avatar: string | null
+          from_user_name: string | null
+          id: string
+          is_read: boolean
+          related_id: string | null
+          title: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_date?: string
+          from_user_avatar?: string | null
+          from_user_name?: string | null
+          id?: string
+          is_read?: boolean
+          related_id?: string | null
+          title?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_date?: string
+          from_user_avatar?: string | null
+          from_user_name?: string | null
+          id?: string
+          is_read?: boolean
+          related_id?: string | null
+          title?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          action_taken: string | null
+          created_date: string
+          details: string | null
+          id: string
+          reason: string
+          reported_user_id: string | null
+          reported_user_name: string | null
+          reporter_id: string
+          reporter_name: string | null
+          status: string
+        }
+        Insert: {
+          action_taken?: string | null
+          created_date?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_user_id?: string | null
+          reported_user_name?: string | null
+          reporter_id: string
+          reporter_name?: string | null
+          status?: string
+        }
+        Update: {
+          action_taken?: string | null
+          created_date?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_user_id?: string | null
+          reported_user_name?: string | null
+          reporter_id?: string
+          reporter_name?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          ai_daily_count: number
+          ai_daily_date: string | null
+          avatar_url: string | null
+          ban_type: string | null
+          ban_until: string | null
+          bio: string | null
+          bot_persona: string | null
+          chat_disabled: boolean
+          created_date: string
+          display_name: string
+          email: string | null
+          id: string
+          is_admin: boolean
+          is_banned: boolean
+          is_bot: boolean
+          is_online: boolean | null
+          last_active: string | null
+          updated_at: string
+          user_id: string
+          warnings: number
+        }
+        Insert: {
+          ai_daily_count?: number
+          ai_daily_date?: string | null
+          avatar_url?: string | null
+          ban_type?: string | null
+          ban_until?: string | null
+          bio?: string | null
+          bot_persona?: string | null
+          chat_disabled?: boolean
+          created_date?: string
+          display_name?: string
+          email?: string | null
+          id?: string
+          is_admin?: boolean
+          is_banned?: boolean
+          is_bot?: boolean
+          is_online?: boolean | null
+          last_active?: string | null
+          updated_at?: string
+          user_id: string
+          warnings?: number
+        }
+        Update: {
+          ai_daily_count?: number
+          ai_daily_date?: string | null
+          avatar_url?: string | null
+          ban_type?: string | null
+          ban_until?: string | null
+          bio?: string | null
+          bot_persona?: string | null
+          chat_disabled?: boolean
+          created_date?: string
+          display_name?: string
+          email?: string | null
+          id?: string
+          is_admin?: boolean
+          is_banned?: boolean
+          is_bot?: boolean
+          is_online?: boolean | null
+          last_active?: string | null
+          updated_at?: string
+          user_id?: string
+          warnings?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
