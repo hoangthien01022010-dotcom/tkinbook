@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import ConversationList from '@/components/chat/ConversationList';
@@ -10,7 +10,6 @@ import AIBotChat from '@/components/chat/AIBotChat';
 import NewChatModal from '@/components/chat/NewChatModal';
 import NewGroupModal from '@/components/chat/NewGroupModal';
 import ConversationInfo from '@/components/chat/ConversationInfo';
-import Avatar from '@/components/chat/Avatar';
 import SocialFeed from '@/components/social/SocialFeed';
 import { MessageCircle, Users, Bell, Settings, Bot, Shield, Newspaper } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -36,13 +35,11 @@ export default function Home() {
       setProfiles(map);
     };
     loadProfiles();
-
     const loadNotifs = async () => {
       const notifs = await base44.entities.Notification.filter({ user_id: user.id, is_read: false });
       setUnreadNotifs(notifs.length);
     };
     loadNotifs();
-
     const u1 = base44.entities.UserProfile.subscribe(() => loadProfiles());
     const u2 = base44.entities.Notification.subscribe(() => loadNotifs());
     return () => { u1(); u2(); };
@@ -60,10 +57,7 @@ export default function Home() {
     const existing = convs.find(c =>
       c.participant_ids?.includes(user.id) && c.participant_ids?.includes(friendId)
     );
-    if (existing) {
-      selectConversation(existing);
-      return;
-    }
+    if (existing) { selectConversation(existing); return; }
     const friendProfile = profiles[friendId];
     const conv = await base44.entities.Conversation.create({
       type: 'direct',
@@ -94,7 +88,7 @@ export default function Home() {
           <h2 className="text-xl font-bold dark:text-white mb-2">Tài khoản bị khóa</h2>
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
             {profile.ban_type === 'permanent'
-            ? 'Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm quy tắc cộng đồng.'
+           ? 'Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm quy tắc cộng đồng.'
               : `Tài khoản bị khóa tạm thời đến ${profile.ban_until? new Date(profile.ban_until).toLocaleDateString('vi-VN') : 'khi có thông báo mới'}.`}
           </p>
           <button onClick={() => base44.auth.logout('/login')} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 dark:text-white rounded-lg text-sm">
@@ -183,54 +177,4 @@ export default function Home() {
               conversation={selectedConv}
               currentUserId={user.id}
               profile={profile}
-              profiles={profiles}
-              onBack={() => setMobileView('list')}
-              onOpenInfo={() => setShowConvInfo(true)}
-              onDeleteConversation={() => { setSelectedConv(null); setMobileView('list'); }}
-            />
-          ) : (
-            <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-              <div className="text-center">
-                <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle size={36} className="text-blue-500" />
-                </div>
-                <h2 className="text-xl font-bold dark:text-white mb-1">Kin Book</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Chọn cuộc trò chuyện để bắt đầu nhắn tin</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {showNewChat && (
-        <NewChatModal
-          currentUserId={user.id}
-          onClose={() => setShowNewChat(false)}
-          onConversationCreated={(conv) => { selectConversation(conv); setShowNewChat(false); }}
-        />
-      )}
-      {showNewGroup && (
-        <NewGroupModal
-          currentUserId={user.id}
-          profile={profile}
-          onClose={() => setShowNewGroup(false)}
-          onCreated={(conv) => { selectConversation(conv); setShowNewGroup(false); }}
-        />
-      )}
-      {showConvInfo && selectedConv && (
-        <ConversationInfo
-          conversation={selectedConv}
-          currentUserId={user.id}
-          profile={profile}
-          profiles={profiles}
-          onClose={() => setShowConvInfo(false)}
-          onUpdated={async () => {
-            const updated = await base44.entities.Conversation.filter({ id: selectedConv.id });
-            if (updated[0]) setSelectedConv(updated[0]);
-            setShowConvInfo(false);
-          }}
-        />
-      )}
-    </div>
-  );
-}
+              profiles
