@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { base44 } from '@/lib/base44';
-import { SEED_POSTS } from './seed_posts';
 
 export default function SocialFeed() {
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
-  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -48,19 +46,9 @@ export default function SocialFeed() {
     loadPosts();
   };
 
-  const seedPosts = async () => {
-    setSeeding(true);
-    for (const p of SEED_POSTS) {
-      await base44.entities.Post.create({...p, author_id: 'seed' });
-    }
-    setSeeding(false);
-    loadPosts();
-  };
-
   return (
     <div style={{maxWidth:600, margin:'0 auto', padding:16}}>
       <h2>Bảng tin</h2>
-
       <div style={{background:'#fff', padding:12, borderRadius:12, marginBottom:16, border:'1px solid #eee'}}>
         <textarea
           placeholder="Bạn đang nghĩ gì?"
@@ -74,16 +62,6 @@ export default function SocialFeed() {
           </button>
         </div>
       </div>
-
-      {posts.length === 0 && (
-        <button
-          onClick={seedPosts}
-          disabled={seeding}
-          style={{marginBottom:12, fontSize:13, opacity:0.7}}
-        >
-          {seeding? 'Đang seed...' : 'Seed 10 bài mẫu'}
-        </button>
-      )}
 
       {posts.map(p => (
         <div key={p.id} style={{background:'#fff', padding:14, borderRadius:12, marginBottom:12, border:'1px solid #eee'}}>
@@ -104,7 +82,7 @@ export default function SocialFeed() {
           </button>
         </div>
       ))}
-      {posts.length === 0 &&!seeding && <p style={{opacity:0.6}}>Chưa có bài nào, đăng bài đầu tiên đi!</p>}
+      {posts.length === 0 && <p style={{opacity:0.6}}>Chưa có bài nào, đăng bài đầu tiên đi!</p>}
     </div>
   );
 }
