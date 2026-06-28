@@ -1,114 +1,76 @@
-import React, { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Loader2, AlertTriangle } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
-  const resetToken = searchParams.get("token");
-
+  const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  // When Supabase redirects with the recovery hash, it auto-creates a session
+  // via detectSessionInUrl. We just need to confirm one exists.
+  useEffect(() => {
+    supabase.auth.getSession();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (newPassword !== confirmPassword) {
-      setError("Mật khẩu không khớp");
-      return;
-    }
+    if (newPassword.length < 6) { setError("Mật khẩu cần ít nhất 6 ký tự"); return; }
+    if (newPassword !== confirmPassword) { setError("Mật khẩu không khớp"); return; }
     setLoading(true);
     try {
-      await base44.auth.resetPassword({ resetToken, newPassword });
-      window.location.href = "/login";
+      const { error: err } = await supabase.auth.updateUser({ password: newPassword });
+      if (err) throw err;
+      setDone(true);
+      setTimeout(() => navigate("/login", { replace: true }), 1500);
     } catch (err) {
-      setError(err.message || "Đặt lại mật khẩu thất bại");
+      setError(err?.message || "Không thể đặt lại mật khẩu");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!resetToken) {
-    return (
-      <AuthLayout
-        icon={AlertTriangle}
-        title="Liên kết không hợp lệ"
-        subtitle="Liên kết đặt lại mật khẩu không hợp lệ"
-        footer={
-          <Link to="/forgot-password" className="text-primary font-medium hover:underline">
-            Yêu cầu liên kết mới
-          </Link>
-        }
-      >
-        <p className="text-sm text-foreground text-center">
-          Liên kết bạn sử dụng có vẻ không đầy đủ. Vui lòng yêu cầu email đặt lại mật khẩu mới.
-        </p>
-      </AuthLayout>
-    );
-  }
-
   return (
-    <AuthLayout
-      icon={Lock}
-      title="Mật khẩu mới"
-      subtitle="Nhập mật khẩu mới bên dưới"
+    <AuthLayout icon={Lock} title="Đặt mật khẩu mới" subtitle="Nhập mật khẩu mới của bạn"
+      footer={<Link to="/login" className="text-primary font-medium hover:underline">Quay lại đăng nhập</Link>}
     >
-      {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          {error}
-        </div>
+      {done ? (
+        <p className="text-sm text-foreground text-center">Đã cập nhật mật khẩu. Đang chuyển hướng…</p>
+      ) : (
+        <>
+          {error && (<div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>)}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Mật khẩu mới</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input id="newPassword" type="password" autoComplete="new-password" placeholder="••••••••"
+                  value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="pl-10 h-12" required />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm">Xác nhận mật khẩu</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input id="confirm" type="password" autoComplete="new-password" placeholder="••••••••"
+                  value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="pl-10 h-12" required />
+              </div>
+            </div>
+            <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
+              {loading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Đang lưu...</>) : "Đặt lại mật khẩu"}
+            </Button>
+          </form>
+        </>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="password">Mật khẩu mới</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              autoFocus
-              placeholder="••••••••"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="confirm">Xác nhận mật khẩu</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="confirm"
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Đang đặt lại...
-            </>
-          ) : (
-            "Đặt lại mật khẩu"
-          )}
-        </Button>
-      </form>
     </AuthLayout>
   );
 }
